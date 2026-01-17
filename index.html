@@ -49,7 +49,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <section class="p-6 bg-slate-900/40 border border-slate-800">
                         <span id="enPos" class="pos-badge mb-2 inline-block">Type</span>
-                        <p id="enMeaning" class="text-xl text-white italic">Grammar check complete.</p>
+                        <p id="enMeaning" class="text-xl text-white italic">Analysis complete.</p>
                     </section>
                     <section class="p-6 bg-slate-900/40 border border-slate-800">
                         <span id="bnPos" class="pos-badge mb-2 inline-block">অনুবাদ</span>
@@ -66,7 +66,6 @@
     </footer>
 
     <script>
-        // YOUR API KEY INTEGRATED
         const API_KEY = "AIzaSyCI-_19X7W1JyshC6iDmMx-pVf-Jk-WYRw"; 
 
         async function searchWord() {
@@ -77,13 +76,13 @@
             const resultArea = document.getElementById('resultArea');
             const aiAnswer = document.getElementById('aiAnswer');
 
-            status.innerText = "AI is generating a perfect answer...";
+            status.innerText = "Consulting Gemini 1.5...";
             status.classList.remove('hidden');
             resultArea.classList.add('hidden');
 
             try {
-                // 1. Fetch AI Answer (Compatible with GitHub/Web Hosting)
-                const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+                // CHANGED: Using v1 endpoint for better model compatibility
+                const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -99,7 +98,7 @@
 
                 const perfectText = aiData.candidates[0].content.parts[0].text;
 
-                // 2. Fetch Translation & Grammar
+                // Linguistic Fetch (Translation & Parts of Speech)
                 const transRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=bn&dt=t&dt=at&q=${encodeURI(input)}`);
                 const transData = await transRes.json();
 
@@ -122,7 +121,7 @@
 
             } catch (e) {
                 console.error(e);
-                status.innerText = "Error: " + e.message;
+                status.innerText = "System Alert: " + e.message;
             }
         }
 
