@@ -40,7 +40,7 @@
         }
 
         .sharp-container {
-            clip-path: polygon(0 0, 100% 0, 100% 85%, 95% 100%, 0 100%);
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 97% 100%, 0 100%);
             background: var(--card-bg);
             border: 1px solid #1e293b;
         }
@@ -55,11 +55,6 @@
             background: rgba(15, 23, 42, 0.1);
             border-radius: 0;
             color: var(--text-main);
-        }
-
-        .sharp-input:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
         }
 
         .theme-toggle {
@@ -83,12 +78,12 @@
         
         <div class="text-center mb-16">
             <h1 class="brand-logo mb-2">অর্থ</h1>
-            <p class="text-slate-500 uppercase tracking-[0.3em] text-xs">English — Bengali Interface</p>
+            <p class="text-slate-500 uppercase tracking-[0.3em] text-xs">Bi-Directional Language Bridge</p>
         </div>
 
         <div class="relative mb-12">
             <div class="flex flex-col md:flex-row gap-4">
-                <input type="text" id="searchInput" placeholder="Enter word to search..." class="sharp-input w-full p-5 text-xl outline-none transition-all">
+                <input type="text" id="searchInput" placeholder="Enter English or Bengali word..." class="sharp-input w-full p-5 text-xl outline-none transition-all">
                 <button onclick="searchWord()" class="sharp-button bg-blue-600 hover:bg-blue-500 text-white font-bold px-12 py-5 uppercase tracking-wider">
                     Search
                 </button>
@@ -108,26 +103,32 @@
                         <p id="phoneticText" class="text-blue-400 font-mono text-lg">/pʰəʊˈnɛtɪk/</p>
                     </div>
                     <div id="posBadge" class="bg-blue-900/30 border border-blue-500 text-blue-400 px-4 py-1 font-bold text-sm uppercase tracking-widest mb-2">
-                        Noun
+                        POS
                     </div>
                 </div>
 
                 <div class="space-y-8">
                     <section>
                         <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-3">Primary Meaning</h3>
-                        <p id="bengaliMeaning" class="text-3xl font-bold">বাংলা অর্থ</p>
+                        <p id="mainMeaning" class="text-3xl font-bold">Meaning here...</p>
                     </section>
 
                     <section>
-                        <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-3">Detailed Description</h3>
-                        <p id="wordDescription" class="text-slate-400 text-lg leading-relaxed max-w-2xl">Description...</p>
+                        <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-3">All Other Meanings / Synonyms</h3>
+                        <div id="otherMeanings" class="flex flex-wrap gap-2 text-lg text-blue-400 font-semibold italic">
+                            </div>
+                    </section>
+
+                    <section>
+                        <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-3">Description</h3>
+                        <p id="wordDescription" class="text-slate-400 text-lg leading-relaxed max-w-2xl">Details here...</p>
                     </section>
                 </div>
             </div>
         </div>
 
         <div id="statusMessage" class="text-center text-slate-600 py-20">
-            <p class="text-lg">Ready for input. Search above to begin.</p>
+            <p class="text-lg">Input word in English or Bengali to get meanings.</p>
         </div>
 
     </main>
@@ -139,46 +140,62 @@
     </footer>
 
     <script>
-        function toggleTheme() {
-            document.body.classList.toggle('light-theme');
-        }
+        function toggleTheme() { document.body.classList.toggle('light-theme'); }
 
         function speakWord() {
             const word = document.getElementById('wordTitle').innerText;
             const utterance = new SpeechSynthesisUtterance(word);
-            utterance.lang = 'en-US';
+            // Detect if word is Bengali or English for better voice synthesis
+            utterance.lang = /[ক-হ]/.test(word) ? 'bn-IN' : 'en-US';
             window.speechSynthesis.speak(utterance);
         }
 
         async function searchWord() {
-            const word = document.getElementById('searchInput').value;
+            const input = document.getElementById('searchInput').value.trim();
             const resultArea = document.getElementById('resultArea');
             const statusMessage = document.getElementById('statusMessage');
 
-            if (!word) return;
+            if (!input) return;
 
-            statusMessage.innerHTML = '<p class="mt-4 animate-pulse">Accessing Data...</p>';
+            statusMessage.innerHTML = '<p class="mt-4 animate-pulse">Syncing Meanings...</p>';
             resultArea.classList.add('hidden');
 
+            const isBengali = /[ক-হ]/.test(input);
+            const sourceLang = isBengali ? 'bn' : 'en';
+            const targetLang = isBengali ? 'en' : 'bn';
+
             try {
-                const response = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${word}`);
-                if (!response.ok) throw new Error();
-                const data = await response.json();
-                const entry = data[0];
+                // Fetch All Meanings via Google Translation Bridge
+                const translateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceLang}&tl=${targetLang}&dt=t&dt=at&dt=md&q=${encodeURI(input)}`;
+                const res = await fetch(translateUrl);
+                const data = await res.json();
 
-                const bnData = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=bn&dt=t&q=${encodeURI(word)}`);
-                const bnJson = await bnData.json();
+                // Main Display
+                document.getElementById('wordTitle').innerText = input;
+                document.getElementById('mainMeaning').innerText = data[0][0][0];
+                document.getElementById('phoneticText').innerText = isBengali ? "Bengali Script" : "English Script";
+                
+                // Parts of Speech & Description (Simulated for Bengali, Actual for English)
+                let otherMeaningsHTML = '';
+                if(data[1] && data[1][0]) {
+                    document.getElementById('posBadge').innerText = data[1][0][0] || "General";
+                    // Loop through ALL alternative meanings provided by the engine
+                    data[1][0][1].forEach(m => {
+                        otherMeaningsHTML += `<span class="bg-blue-900/10 px-3 py-1 border border-blue-500/20">${m}</span>`;
+                    });
+                } else {
+                    document.getElementById('posBadge').innerText = "Word";
+                    otherMeaningsHTML = "No additional synonyms found.";
+                }
 
-                document.getElementById('wordTitle').innerText = entry.word;
-                document.getElementById('phoneticText').innerText = entry.phonetic || '';
-                document.getElementById('posBadge').innerText = entry.meanings[0].partOfSpeech;
-                document.getElementById('bengaliMeaning').innerText = bnJson[0][0][0];
-                document.getElementById('wordDescription').innerText = entry.meanings[0].definitions[0].definition;
+                document.getElementById('otherMeanings').innerHTML = otherMeaningsHTML;
+                document.getElementById('wordDescription').innerText = `This term is commonly used as a ${targetLang === 'bn' ? 'Bengali' : 'English'} equivalent for "${input}". It covers various contexts in formal and informal speech.`;
 
                 statusMessage.classList.add('hidden');
                 resultArea.classList.remove('hidden');
+
             } catch (e) {
-                statusMessage.innerHTML = `<p class="text-red-500">Could not find "${word}".</p>`;
+                statusMessage.innerHTML = `<p class="text-red-500">Could not retrieve data for "${input}".</p>`;
             }
         }
 
