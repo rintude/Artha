@@ -5,18 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>অর্থ | Universal AI Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script type="importmap">
-      {
-        "imports": {
-          "@google/generative-ai": "https://esm.run/@google/generative-ai"
-        }
-      }
-    </script>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root { --accent: #3b82f6; --bg-dark: #020617; --card-bg: #0f172a; --text-main: #f8fafc; }
         .light-theme { --bg-dark: #f1f5f9; --card-bg: #ffffff; --text-main: #0f172a; }
-        body { font-family: 'Inter', 'Hind Siliguri', sans-serif; background-color: var(--bg-dark); color: var(--text-main); transition: 0.3s; }
+        body { font-family: 'Inter', 'Hind Siliguri', sans-serif; background-color: var(--bg-dark); color: var(--text-main); transition: 0.3s; overflow-x: hidden; }
         .brand-logo { font-size: 5rem; font-weight: 900; background: linear-gradient(135deg, #ffffff 0%, #3b82f6 50%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.5)); letter-spacing: -2px; display: inline-block; }
         .sharp-container { clip-path: polygon(0 0, 100% 0, 100% 90%, 97% 100%, 0 100%); background: var(--card-bg); border: 1px solid #1e293b; }
         .sharp-button { clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%); transition: all 0.2s ease; }
@@ -46,7 +39,7 @@
         </div>
 
         <div id="resultArea" class="hidden space-y-6">
-            <div id="aiSection" class="hidden sharp-container p-8 ai-glow mb-6">
+            <div id="aiSection" class="sharp-container p-8 ai-glow mb-6">
                 <h3 class="text-emerald-500 font-bold text-xs uppercase tracking-widest mb-4">AI Intelligence Response</h3>
                 <div id="aiAnswer" class="text-white text-lg leading-relaxed whitespace-pre-wrap"></div>
             </div>
@@ -56,7 +49,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <section class="p-6 bg-slate-900/40 border border-slate-800">
                         <span id="enPos" class="pos-badge mb-2 inline-block">Type</span>
-                        <p id="enMeaning" class="text-xl text-white italic">Definition loading...</p>
+                        <p id="enMeaning" class="text-xl text-white italic">Grammar check complete.</p>
                     </section>
                     <section class="p-6 bg-slate-900/40 border border-slate-800">
                         <span id="bnPos" class="pos-badge mb-2 inline-block">অনুবাদ</span>
@@ -72,14 +65,11 @@
         © 2026 <span class="font-bold text-white">Babai</span>. All Rights Reserved.
     </footer>
 
-    <script type="module">
-        import { GoogleGenerativeAI } from "@google/generative-ai";
-
-        // REPLACE THIS WITH YOUR ACTUAL KEY
+    <script>
+        // YOUR API KEY INTEGRATED
         const API_KEY = "AIzaSyCI-_19X7W1JyshC6iDmMx-pVf-Jk-WYRw"; 
-        const genAI = new GoogleGenerativeAI(API_KEY);
 
-        window.searchWord = async function() {
+        async function searchWord() {
             const input = document.getElementById('searchInput').value.trim();
             if (!input) return;
 
@@ -87,28 +77,38 @@
             const resultArea = document.getElementById('resultArea');
             const aiAnswer = document.getElementById('aiAnswer');
 
-            status.innerText = "AI is thinking and analyzing grammar...";
+            status.innerText = "AI is generating a perfect answer...";
             status.classList.remove('hidden');
             resultArea.classList.add('hidden');
 
             try {
-                // 1. AI Content Generation
-                const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                const result = await model.generateContent(input);
-                const response = await result.response;
-                const text = response.text();
+                // 1. Fetch AI Answer (Compatible with GitHub/Web Hosting)
+                const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: input }] }]
+                    })
+                });
 
-                // 2. Linguistic Data (Translation & POS)
+                const aiData = await aiResponse.json();
+                
+                if (aiData.error) {
+                    throw new Error(aiData.error.message);
+                }
+
+                const perfectText = aiData.candidates[0].content.parts[0].text;
+
+                // 2. Fetch Translation & Grammar
                 const transRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=bn&dt=t&dt=at&q=${encodeURI(input)}`);
                 const transData = await transRes.json();
 
-                // POS Logic
                 let pos = "Expression";
                 if (transData[1] && transData[1][0]) pos = transData[1][0][0];
 
                 // Update UI
                 document.getElementById('wordTitle').innerText = input;
-                aiAnswer.innerText = text;
+                aiAnswer.innerText = perfectText;
                 document.getElementById('bnMeaning').innerText = transData[0][0][0];
                 document.getElementById('enPos').innerText = pos;
                 
@@ -117,14 +117,16 @@
                 const posTransData = await posTrans.json();
                 document.getElementById('bnPos').innerText = posTransData[0][0][0];
 
-                document.getElementById('aiSection').classList.remove('hidden');
                 resultArea.classList.remove('hidden');
                 status.classList.add('hidden');
+
             } catch (e) {
                 console.error(e);
-                status.innerText = "Error: Please ensure your API Key is valid and you are connected to the internet.";
+                status.innerText = "Error: " + e.message;
             }
         }
+
+        document.getElementById('searchInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchWord(); });
     </script>
 </body>
 </html>
