@@ -3,277 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>অর্থ | Universal AI Dictionary</title>
+    <title>অর্থ | Universal AI Engine</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --accent: #3b82f6;
-            --bg-dark: #020617;
-            --card-bg: #0f172a;
-            --text-main: #f8fafc;
-        }
-
-        .light-theme {
-            --bg-dark: #f1f5f9;
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
-        }
-
-        body {
-            font-family: 'Inter', 'Hind Siliguri', sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            overflow-x: hidden;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-
-        .brand-logo {
-            font-size: 5rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, #ffffff 0%, #3b82f6 50%, #1e40af 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.5));
-            letter-spacing: -2px;
-            display: inline-block;
-        }
-
-        .sharp-container {
-            clip-path: polygon(0 0, 100% 0, 100% 90%, 97% 100%, 0 100%);
-            background: var(--card-bg);
-            border: 1px solid #1e293b;
-        }
-
-        .sharp-button {
-            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
-            transition: all 0.2s ease;
-        }
-
-        .sharp-input {
-            border: 2px solid #1e293b;
-            background: rgba(15, 23, 42, 0.1);
-            border-radius: 0;
-            color: var(--text-main);
-        }
-
-        .theme-toggle {
-            cursor: pointer;
-            padding: 10px;
-            border: 1px solid #1e293b;
-            clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%, 0 20%);
-        }
-
-        .pos-badge {
-            font-size: 0.7rem;
-            padding: 4px 12px;
-            background: rgba(59, 130, 246, 0.2);
-            border: 1px solid var(--accent);
-            color: var(--accent);
-            text-transform: uppercase;
-            font-weight: 900;
-            letter-spacing: 0.15em;
-        }
-
-        .ai-card {
-            border: 1px solid #10b981;
-            background: rgba(16, 185, 129, 0.05);
-            position: relative;
-        }
+        :root { --accent: #3b82f6; --bg-dark: #020617; --card-bg: #0f172a; --text-main: #f8fafc; }
+        .light-theme { --bg-dark: #f1f5f9; --card-bg: #ffffff; --text-main: #0f172a; }
+        body { font-family: 'Inter', 'Hind Siliguri', sans-serif; background-color: var(--bg-dark); color: var(--text-main); transition: 0.3s; }
+        .brand-logo { font-size: 5rem; font-weight: 900; background: linear-gradient(135deg, #ffffff 0%, #3b82f6 50%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.5)); letter-spacing: -2px; display: inline-block; }
+        .sharp-container { clip-path: polygon(0 0, 100% 0, 100% 90%, 97% 100%, 0 100%); background: var(--card-bg); border: 1px solid #1e293b; }
+        .sharp-button { clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%); transition: all 0.2s ease; }
+        .sharp-input { border: 2px solid #1e293b; background: rgba(15, 23, 42, 0.1); color: var(--text-main); }
+        .pos-badge { font-size: 0.7rem; padding: 4px 12px; border: 1px solid var(--accent); color: var(--accent); text-transform: uppercase; font-weight: 900; }
+        .ai-glow { border: 1px solid #10b981; background: rgba(16, 185, 129, 0.05); }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
     <nav class="w-full p-6 flex justify-between items-center border-b border-slate-800">
         <div class="text-2xl font-black tracking-tighter uppercase">অর্থ</div>
-        <button onclick="toggleTheme()" class="theme-toggle bg-slate-800 text-xs font-bold uppercase tracking-widest text-white">
-            Switch Mode
-        </button>
+        <button onclick="document.body.classList.toggle('light-theme')" class="bg-slate-800 px-4 py-2 text-xs font-bold uppercase text-white">Switch Mode</button>
     </nav>
 
     <main class="flex-grow container mx-auto px-4 py-12 max-w-5xl">
-        
         <div class="text-center mb-16">
             <h1 class="brand-logo mb-2">অর্থ</h1>
-            <p class="text-slate-500 uppercase tracking-[0.3em] text-xs">Knowledge & Language Engine</p>
+            <p class="text-slate-500 uppercase tracking-[0.3em] text-xs">Knowledge & AI Assistant</p>
         </div>
 
         <div class="relative mb-12">
             <div class="flex flex-col md:flex-row gap-4">
-                <input type="text" id="searchInput" placeholder="Search a word or ask any question..." class="sharp-input w-full p-5 text-xl outline-none transition-all">
-                <button onclick="searchWord()" class="sharp-button bg-blue-600 hover:bg-blue-500 text-white font-bold px-12 py-5 uppercase tracking-wider">
-                    Analyze
-                </button>
+                <input type="text" id="searchInput" placeholder="Ask AI anything..." class="sharp-input w-full p-5 text-xl outline-none">
+                <button onclick="searchWord()" class="sharp-button bg-blue-600 hover:bg-blue-500 text-white font-bold px-12 py-5 uppercase">Analyze</button>
             </div>
         </div>
 
         <div id="resultArea" class="hidden space-y-6">
-            
-            <div id="aiSection" class="hidden sharp-container p-8 ai-card mb-6">
-                <div class="flex items-center gap-2 mb-4">
-                    <div class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
-                    <h3 class="text-emerald-500 font-bold text-xs uppercase tracking-widest">AI Intelligence Response</h3>
-                </div>
-                <div id="aiAnswer" class="text-white text-lg leading-relaxed space-y-4"></div>
+            <div id="aiSection" class="hidden sharp-container p-8 ai-glow mb-6">
+                <h3 class="text-emerald-500 font-bold text-xs uppercase tracking-widest mb-4">AI Intelligence Response</h3>
+                <div id="aiAnswer" class="text-white text-lg leading-relaxed"></div>
             </div>
 
             <div class="sharp-container p-8 border-l-4 border-l-blue-500">
-                <div class="flex flex-wrap justify-between items-start gap-4 mb-8">
-                    <div>
-                        <div class="flex items-center gap-4">
-                            <h2 id="wordTitle" class="text-4xl font-black capitalize mb-2">Word</h2>
-                            <button onclick="speakWord()" class="p-2 bg-blue-600/20 hover:bg-blue-600/40 rounded-full transition-colors">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-                            </button>
-                        </div>
-                        <p id="langDetect" class="text-blue-400 font-bold uppercase text-xs tracking-widest mt-1">Language Logic</p>
-                    </div>
-                </div>
-
+                <h2 id="wordTitle" class="text-4xl font-black capitalize mb-6">Result</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <section class="p-6 bg-slate-900/40 border border-slate-800">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest">In English</h3>
-                            <span id="enPos" class="pos-badge">Detecting...</span>
-                        </div>
-                        <p id="enMeaning" class="text-2xl font-bold text-white mb-4">Meaning</p>
-                        <div id="enSyns" class="flex flex-wrap gap-2 text-sm italic text-blue-300"></div>
+                        <span id="enPos" class="pos-badge mb-2 inline-block">Definition</span>
+                        <p id="enMeaning" class="text-xl text-white"></p>
                     </section>
-
                     <section class="p-6 bg-slate-900/40 border border-slate-800">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest">In Bengali</h3>
-                            <span id="bnPos" class="pos-badge">খুঁজছি...</span>
-                        </div>
-                        <p id="bnMeaning" class="text-2xl font-bold text-white mb-4">অর্থ</p>
-                        <div id="bnSyns" class="flex flex-wrap gap-2 text-sm italic text-blue-300"></div>
+                        <span id="bnPos" class="pos-badge mb-2 inline-block">অনুবাদ</span>
+                        <p id="bnMeaning" class="text-xl text-white"></p>
                     </section>
-                </div>
-
-                <div id="dictFooter" class="mt-8 pt-8 border-t border-slate-800 space-y-6">
-                    <div>
-                        <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-3">Contextual Description</h3>
-                        <p id="wordDescription" class="text-slate-300 text-lg leading-relaxed italic">Processing...</p>
-                    </div>
-                    <div id="usageContainer" class="bg-blue-600/5 p-5 border-l-2 border-blue-500">
-                        <h3 class="text-blue-400 font-bold text-xs uppercase tracking-widest mb-2">Usage Example</h3>
-                        <p id="wordExample" class="text-white italic text-lg leading-relaxed font-serif"></p>
-                    </div>
                 </div>
             </div>
         </div>
-
-        <div id="statusMessage" class="text-center text-slate-600 py-20">
-            <p class="text-lg">Type a word for dictionary or a question for AI answers.</p>
-        </div>
-
+        <div id="statusMessage" class="text-center text-slate-600 py-20">Enter a query to begin.</div>
     </main>
 
-    <footer class="w-full py-8 px-6 border-t border-slate-900 flex justify-between items-center">
-        <div class="text-slate-500 text-xs tracking-widest uppercase">
-            © 2026 <span class="font-bold text-white">Babai</span>. All Rights Reserved.
-        </div>
+    <footer class="w-full py-8 text-center border-t border-slate-900 text-slate-500 text-xs">
+        © 2026 <span class="font-bold text-white">Babai</span>. All Rights Reserved.
     </footer>
 
     <script>
-        let detectedLangCode = 'en-US';
-
-        function toggleTheme() { document.body.classList.toggle('light-theme'); }
-
-        function speakWord() {
-            const text = document.getElementById('wordTitle').innerText;
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = detectedLangCode;
-            window.speechSynthesis.speak(utterance);
-        }
-
-        async function fetchLinguistics(text, target) {
-            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${target}&dt=t&dt=at&dt=md&dt=ex&q=${encodeURI(text)}`;
-            const res = await fetch(url);
-            return await res.json();
-        }
+        // INSERT YOUR KEY HERE
+        const GEMINI_API_KEY = "AIzaSyCI-_19X7W1JyshC6iDmMx-pVf-Jk-WYRw"; 
 
         async function searchWord() {
             const input = document.getElementById('searchInput').value.trim();
-            const resultArea = document.getElementById('resultArea');
-            const statusMessage = document.getElementById('statusMessage');
-            const aiSection = document.getElementById('aiSection');
-            const usageContainer = document.getElementById('usageContainer');
-            const dictFooter = document.getElementById('dictFooter');
-
             if (!input) return;
 
-            statusMessage.innerHTML = '<p class="animate-pulse">Thinking & Analyzing...</p>';
-            resultArea.classList.add('hidden');
-            aiSection.classList.add('hidden');
-
-            const isSentence = input.split(/\s+/).length > 2;
-            const isQuestion = input.includes('?') || input.toLowerCase().match(/^(what|how|why|who|where|when|can|is|tell|give|explain)/);
+            document.getElementById('statusMessage').innerText = "AI is thinking...";
+            document.getElementById('resultArea').classList.add('hidden');
 
             try {
-                const [enData, bnData] = await Promise.all([
-                    fetchLinguistics(input, 'en'),
-                    fetchLinguistics(input, 'bn')
-                ]);
+                // 1. Fetch AI Answer from Gemini
+                const aiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: input }] }] })
+                });
+                const aiData = await aiRes.json();
+                const perfectAnswer = aiData.candidates[0].content.parts[0].text;
 
-                detectedLangCode = enData[2] || 'en-US';
+                // 2. Fetch Translation
+                const transRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=bn&dt=t&q=${encodeURI(input)}`);
+                const transData = await transRes.json();
+
+                // Display results
                 document.getElementById('wordTitle').innerText = input;
-                document.getElementById('langDetect').innerText = `Input: ${detectedLangCode.toUpperCase()}`;
-
-                // --- POS DETECTION FIX ---
-                let posVal = "Phrase";
-                if (!isSentence) {
-                    if (enData[1] && enData[1][0] && enData[1][0][0]) {
-                        posVal = enData[1][0][0];
-                    } else if (enData[12] && enData[12][0]) {
-                        posVal = enData[12][0][0];
-                    } else {
-                        posVal = "Word";
-                    }
-                } else if (isQuestion) { posVal = "Inquiry"; }
-
-                document.getElementById('enPos').innerText = posVal;
-                const bnPosData = await fetchLinguistics(posVal, 'bn');
-                document.getElementById('bnPos').innerText = bnPosData[0][0][0];
-
-                document.getElementById('enMeaning').innerText = enData[0][0][0];
-                document.getElementById('bnMeaning').innerText = bnData[0][0][0];
-
-                // --- AI CORE LOGIC ---
-                if (isQuestion || isSentence) {
-                    aiSection.classList.remove('hidden');
-                    dictFooter.classList.add('hidden');
-                    
-                    // The AI response uses the translated synthesis to provide an "answer-like" description
-                    const rawAnswer = enData[0].map(x => x[0]).join(' ');
-                    document.getElementById('aiAnswer').innerHTML = `
-                        <p class="font-bold text-emerald-400">Analysis Summary:</p>
-                        <p>${rawAnswer}</p>
-                        <p class="text-sm text-slate-400 mt-4 border-t border-emerald-900/30 pt-2">
-                           This query has been processed via AI Linguistic mapping. It identifies the core subject as "${enData[0][0][1]}" and provides a direct semantic response.
-                        </p>
-                    `;
-                } else {
-                    aiSection.classList.add('hidden');
-                    dictFooter.classList.remove('hidden');
-                    usageContainer.classList.remove('hidden');
-                    
-                    const definition = (enData[12] && enData[12][0]) ? enData[12][0][1][0][0] : `Dictionary data for the ${posVal} "${input}".`;
-                    const exampleText = (enData[13] && enData[13][0]) ? enData[13][0][0][0].replace(/<b>|<\/b>/g, "") : `How the word "${input}" appears in standard English usage.`;
-                    
-                    document.getElementById('wordDescription').innerText = definition;
-                    document.getElementById('wordExample').innerText = `"${exampleText}"`;
-                }
-
-                statusMessage.classList.add('hidden');
-                resultArea.classList.remove('hidden');
-
+                document.getElementById('aiAnswer').innerText = perfectAnswer;
+                document.getElementById('bnMeaning').innerText = transData[0][0][0];
+                document.getElementById('enMeaning').innerText = "Linguistic analysis complete.";
+                
+                document.getElementById('aiSection').classList.remove('hidden');
+                document.getElementById('resultArea').classList.remove('hidden');
+                document.getElementById('statusMessage').classList.add('hidden');
             } catch (e) {
-                statusMessage.innerHTML = `<p class="text-red-500">System error. Please try another query.</p>`;
+                document.getElementById('statusMessage').innerText = "Error: Check API Key or Connection.";
             }
         }
-
-        document.getElementById('searchInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchWord(); });
     </script>
 </body>
 </html>
