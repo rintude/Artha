@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>অর্থ | Modern Dictionary</title>
+    <title>অর্থ | Universal Dictionary</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -63,6 +63,16 @@
             border: 1px solid #1e293b;
             clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%, 0 20%);
         }
+
+        .meaning-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .meaning-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -74,68 +84,66 @@
         </button>
     </nav>
 
-    <main class="flex-grow container mx-auto px-4 py-12 max-w-4xl">
+    <main class="flex-grow container mx-auto px-4 py-12 max-w-5xl">
         
         <div class="text-center mb-16">
             <h1 class="brand-logo mb-2">অর্থ</h1>
-            <p class="text-slate-500 uppercase tracking-[0.3em] text-xs">Bi-Directional Language Bridge</p>
+            <p class="text-slate-500 uppercase tracking-[0.3em] text-xs">Universal Multi-Language Engine</p>
         </div>
 
         <div class="relative mb-12">
             <div class="flex flex-col md:flex-row gap-4">
-                <input type="text" id="searchInput" placeholder="Enter English or Bengali word..." class="sharp-input w-full p-5 text-xl outline-none transition-all">
+                <input type="text" id="searchInput" placeholder="Type in ANY language (e.g. Hola, Amigo, Book, বই)..." class="sharp-input w-full p-5 text-xl outline-none transition-all">
                 <button onclick="searchWord()" class="sharp-button bg-blue-600 hover:bg-blue-500 text-white font-bold px-12 py-5 uppercase tracking-wider">
-                    Search
+                    Analyze
                 </button>
             </div>
         </div>
 
         <div id="resultArea" class="hidden space-y-6">
             <div class="sharp-container p-8 border-l-4 border-l-blue-500">
-                <div class="flex flex-wrap justify-between items-end gap-4 mb-6">
+                <div class="flex flex-wrap justify-between items-start gap-4 mb-8">
                     <div>
                         <div class="flex items-center gap-4">
                             <h2 id="wordTitle" class="text-5xl font-black capitalize mb-2">Word</h2>
-                            <button onclick="speakWord()" class="mb-2 p-2 bg-blue-600/20 hover:bg-blue-600/40 rounded-full transition-colors" title="Listen">
+                            <button onclick="speakWord()" class="p-2 bg-blue-600/20 hover:bg-blue-600/40 rounded-full transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                             </button>
                         </div>
-                        <p id="phoneticText" class="text-blue-400 font-mono text-lg">/pʰəʊˈnɛtɪk/</p>
-                    </div>
-                    <div id="posBadge" class="bg-blue-900/30 border border-blue-500 text-blue-400 px-4 py-1 font-bold text-sm uppercase tracking-widest mb-2">
-                        POS
+                        <p id="langDetect" class="text-blue-400 font-bold uppercase text-sm tracking-widest mt-1">Detected Language</p>
                     </div>
                 </div>
 
-                <div class="space-y-8">
-                    <section>
-                        <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-3">Primary Meaning</h3>
-                        <p id="mainMeaning" class="text-3xl font-bold">Meaning here...</p>
+                <div class="meaning-grid">
+                    <section class="p-6 bg-slate-900/40 border border-slate-800">
+                        <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-4">In English</h3>
+                        <p id="enMeaning" class="text-3xl font-bold text-white mb-4">Meaning</p>
+                        <div id="enSyns" class="flex flex-wrap gap-2 text-sm italic text-blue-300"></div>
                     </section>
 
-                    <section>
-                        <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-3">All Other Meanings / Synonyms</h3>
-                        <div id="otherMeanings" class="flex flex-wrap gap-2 text-lg text-blue-400 font-semibold italic">
-                            </div>
+                    <section class="p-6 bg-slate-900/40 border border-slate-800">
+                        <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-4">In Bengali (বাংলায়)</h3>
+                        <p id="bnMeaning" class="text-3xl font-bold text-white mb-4">অর্থ</p>
+                        <div id="bnSyns" class="flex flex-wrap gap-2 text-sm italic text-blue-300"></div>
                     </section>
+                </div>
 
-                    <section>
-                        <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-3">Description</h3>
-                        <p id="wordDescription" class="text-slate-400 text-lg leading-relaxed max-w-2xl">Details here...</p>
-                    </section>
+                <div class="mt-8 pt-8 border-t border-slate-800">
+                    <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-3">Context & Usage</h3>
+                    <p id="wordDescription" class="text-slate-400 text-lg leading-relaxed italic">The engine is processing context...</p>
                 </div>
             </div>
         </div>
 
         <div id="statusMessage" class="text-center text-slate-600 py-20">
-            <p class="text-lg">Input word in English or Bengali to get meanings.</p>
+            <p class="text-lg">Type any word from any language for English and Bengali results.</p>
         </div>
 
     </main>
 
-    <footer class="w-full py-8 px-6 border-t border-slate-900 flex flex-col md:flex-row justify-between items-center gap-4">
-        <div class="text-slate-500 text-xs tracking-widest">
-            © 2026 <span class="font-bold">Babai</span>. ALL RIGHTS RESERVED.
+    <footer class="w-full py-8 px-6 border-t border-slate-900 flex justify-between items-center">
+        <div class="text-slate-500 text-xs tracking-widest uppercase">
+            © 2026 <span class="font-bold text-white">Babai</span>. All Rights Reserved.
         </div>
     </footer>
 
@@ -145,9 +153,13 @@
         function speakWord() {
             const word = document.getElementById('wordTitle').innerText;
             const utterance = new SpeechSynthesisUtterance(word);
-            // Detect if word is Bengali or English for better voice synthesis
-            utterance.lang = /[ক-হ]/.test(word) ? 'bn-IN' : 'en-US';
             window.speechSynthesis.speak(utterance);
+        }
+
+        async function fetchTranslate(text, target) {
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${target}&dt=t&dt=at&q=${encodeURI(text)}`;
+            const res = await fetch(url);
+            return await res.json();
         }
 
         async function searchWord() {
@@ -157,45 +169,43 @@
 
             if (!input) return;
 
-            statusMessage.innerHTML = '<p class="mt-4 animate-pulse">Syncing Meanings...</p>';
+            statusMessage.innerHTML = '<p class="animate-pulse">Global Engine Syncing...</p>';
             resultArea.classList.add('hidden');
 
-            const isBengali = /[ক-হ]/.test(input);
-            const sourceLang = isBengali ? 'bn' : 'en';
-            const targetLang = isBengali ? 'en' : 'bn';
-
             try {
-                // Fetch All Meanings via Google Translation Bridge
-                const translateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceLang}&tl=${targetLang}&dt=t&dt=at&dt=md&q=${encodeURI(input)}`;
-                const res = await fetch(translateUrl);
-                const data = await res.json();
+                // Fetch English and Bengali results simultaneously
+                const [enData, bnData] = await Promise.all([
+                    fetchTranslate(input, 'en'),
+                    fetchTranslate(input, 'bn')
+                ]);
 
-                // Main Display
+                // Update UI
                 document.getElementById('wordTitle').innerText = input;
-                document.getElementById('mainMeaning').innerText = data[0][0][0];
-                document.getElementById('phoneticText').innerText = isBengali ? "Bengali Script" : "English Script";
+                document.getElementById('langDetect').innerText = `Source Language Detected`;
                 
-                // Parts of Speech & Description (Simulated for Bengali, Actual for English)
-                let otherMeaningsHTML = '';
-                if(data[1] && data[1][0]) {
-                    document.getElementById('posBadge').innerText = data[1][0][0] || "General";
-                    // Loop through ALL alternative meanings provided by the engine
-                    data[1][0][1].forEach(m => {
-                        otherMeaningsHTML += `<span class="bg-blue-900/10 px-3 py-1 border border-blue-500/20">${m}</span>`;
-                    });
-                } else {
-                    document.getElementById('posBadge').innerText = "Word";
-                    otherMeaningsHTML = "No additional synonyms found.";
+                // English Display
+                document.getElementById('enMeaning').innerText = enData[0][0][0];
+                let enSyns = "";
+                if(enData[1] && enData[1][0]) {
+                    enData[1][0][1].slice(0, 5).forEach(s => enSyns += `<span class="bg-blue-900/20 px-2 py-1 border border-blue-500/30">${s}</span>`);
                 }
+                document.getElementById('enSyns').innerHTML = enSyns;
 
-                document.getElementById('otherMeanings').innerHTML = otherMeaningsHTML;
-                document.getElementById('wordDescription').innerText = `This term is commonly used as a ${targetLang === 'bn' ? 'Bengali' : 'English'} equivalent for "${input}". It covers various contexts in formal and informal speech.`;
+                // Bengali Display
+                document.getElementById('bnMeaning').innerText = bnData[0][0][0];
+                let bnSyns = "";
+                if(bnData[1] && bnData[1][0]) {
+                    bnData[1][0][1].slice(0, 5).forEach(s => bnSyns += `<span class="bg-blue-900/20 px-2 py-1 border border-blue-500/30">${s}</span>`);
+                }
+                document.getElementById('bnSyns').innerHTML = bnSyns;
+
+                document.getElementById('wordDescription').innerText = `This universal result provides the primary definition in both English and Bengali, including common synonyms for global context.`;
 
                 statusMessage.classList.add('hidden');
                 resultArea.classList.remove('hidden');
 
             } catch (e) {
-                statusMessage.innerHTML = `<p class="text-red-500">Could not retrieve data for "${input}".</p>`;
+                statusMessage.innerHTML = `<p class="text-red-500">Universal engine error. Please try again.</p>`;
             }
         }
 
