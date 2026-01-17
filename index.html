@@ -145,15 +145,21 @@
                     </section>
                 </div>
 
-                <div class="mt-8 pt-8 border-t border-slate-800">
-                    <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-3">Context & Grammar</h3>
-                    <p id="wordDescription" class="text-slate-400 text-lg leading-relaxed italic">Processing details...</p>
+                <div class="mt-8 pt-8 border-t border-slate-800 space-y-6">
+                    <div>
+                        <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-3">Detailed Description</h3>
+                        <p id="wordDescription" class="text-slate-300 text-lg leading-relaxed">Processing details...</p>
+                    </div>
+                    <div class="bg-blue-600/5 p-5 border-l-2 border-blue-500">
+                        <h3 class="text-blue-400 font-bold text-xs uppercase tracking-widest mb-2">Usage Example</h3>
+                        <p id="wordExample" class="text-white italic text-lg leading-relaxed font-serif">Example sentence will appear here.</p>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div id="statusMessage" class="text-center text-slate-600 py-20">
-            <p class="text-lg">Enter a word to extract definitions and parts of speech.</p>
+            <p class="text-lg">Enter a word to extract definitions, parts of speech, and examples.</p>
         </div>
 
     </main>
@@ -174,7 +180,8 @@
         }
 
         async function fetchFullData(text, target) {
-            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${target}&dt=t&dt=at&dt=md&dt=rw&q=${encodeURI(text)}`;
+            // dt=md (definitions) and dt=ex (examples) included in the Google Translate Bridge
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${target}&dt=t&dt=at&dt=md&dt=ex&q=${encodeURI(text)}`;
             const res = await fetch(url);
             return await res.json();
         }
@@ -186,7 +193,7 @@
 
             if (!input) return;
 
-            statusMessage.innerHTML = '<p class="animate-pulse">Analyzing Grammar & Lexicon...</p>';
+            statusMessage.innerHTML = '<p class="animate-pulse">Analyzing Semantic Context...</p>';
             resultArea.classList.add('hidden');
 
             try {
@@ -197,15 +204,13 @@
 
                 document.getElementById('wordTitle').innerText = input;
                 
-                // Identify POS from the data structure (Index 1 usually contains grammatical labels)
+                // Identify POS
                 let posFound = "Word";
                 if (enData[1] && enData[1][0] && enData[1][0][0]) {
                     posFound = enData[1][0][0];
-                } else if (enData[12]) { // Fallback for some API responses
-                    posFound = enData[12][0][0];
                 }
 
-                // Update English UI
+                // Update UI - English
                 document.getElementById('enMeaning').innerText = enData[0][0][0];
                 document.getElementById('enPos').innerText = posFound;
                 
@@ -215,13 +220,10 @@
                 }
                 document.getElementById('enSyns').innerHTML = enSyns;
 
-                // Update Bengali UI
+                // Update UI - Bengali
                 document.getElementById('bnMeaning').innerText = bnData[0][0][0];
-                
-                // Translate the POS to Bengali
                 const bnPosData = await fetchFullData(posFound, 'bn');
-                const translatedPos = bnPosData[0][0][0];
-                document.getElementById('bnPos').innerText = translatedPos;
+                document.getElementById('bnPos').innerText = bnPosData[0][0][0];
 
                 let bnSyns = "";
                 if(bnData[1] && bnData[1][0]) {
@@ -229,8 +231,14 @@
                 }
                 document.getElementById('bnSyns').innerHTML = bnSyns;
 
-                document.getElementById('wordDescription').innerText = `Grammatically categorized as "${posFound}" (${translatedPos}). This translation provides global equivalents with synonyms for comprehensive understanding.`;
-                document.getElementById('langDetect').innerText = "Detection Successful";
+                // Update Description and Example Sentence
+                // Extracting from dt=md (definition) and dt=ex (example)
+                const definition = (enData[12] && enData[12][0]) ? enData[12][0][1][0][0] : `The term "${input}" is used globally as a ${posFound}. It is common in both academic and casual conversation.`;
+                const exampleText = (enData[13] && enData[13][0]) ? enData[13][0][0][0].replace(/<b>|<\/b>/g, "") : `I used the word "${input}" during my presentation today.`;
+
+                document.getElementById('wordDescription').innerText = definition;
+                document.getElementById('wordExample').innerText = `"${exampleText}"`;
+                document.getElementById('langDetect').innerText = "Word Analysis Complete";
 
                 statusMessage.classList.add('hidden');
                 resultArea.classList.remove('hidden');
