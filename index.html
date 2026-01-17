@@ -64,6 +64,17 @@
             clip-path: polygon(20% 0, 100% 0, 100% 100%, 0 100%, 0 20%);
         }
 
+        .pos-badge {
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            text-transform: uppercase;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+        }
+
         .meaning-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -93,7 +104,7 @@
 
         <div class="relative mb-12">
             <div class="flex flex-col md:flex-row gap-4">
-                <input type="text" id="searchInput" placeholder="Type in ANY language (e.g. Hola, Amigo, Book, বই)..." class="sharp-input w-full p-5 text-xl outline-none transition-all">
+                <input type="text" id="searchInput" placeholder="Type in any language..." class="sharp-input w-full p-5 text-xl outline-none transition-all">
                 <button onclick="searchWord()" class="sharp-button bg-blue-600 hover:bg-blue-500 text-white font-bold px-12 py-5 uppercase tracking-wider">
                     Analyze
                 </button>
@@ -110,19 +121,25 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                             </button>
                         </div>
-                        <p id="langDetect" class="text-blue-400 font-bold uppercase text-sm tracking-widest mt-1">Detected Language</p>
+                        <p id="langDetect" class="text-blue-400 font-bold uppercase text-sm tracking-widest mt-1">Source Detected</p>
                     </div>
                 </div>
 
                 <div class="meaning-grid">
                     <section class="p-6 bg-slate-900/40 border border-slate-800">
-                        <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-4">In English</h3>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest">In English</h3>
+                            <span id="enPos" class="pos-badge">POS</span>
+                        </div>
                         <p id="enMeaning" class="text-3xl font-bold text-white mb-4">Meaning</p>
                         <div id="enSyns" class="flex flex-wrap gap-2 text-sm italic text-blue-300"></div>
                     </section>
 
                     <section class="p-6 bg-slate-900/40 border border-slate-800">
-                        <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-4">In Bengali (বাংলায়)</h3>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest">In Bengali (বাংলায়)</h3>
+                            <span id="bnPos" class="pos-badge">পদ</span>
+                        </div>
                         <p id="bnMeaning" class="text-3xl font-bold text-white mb-4">অর্থ</p>
                         <div id="bnSyns" class="flex flex-wrap gap-2 text-sm italic text-blue-300"></div>
                     </section>
@@ -136,7 +153,7 @@
         </div>
 
         <div id="statusMessage" class="text-center text-slate-600 py-20">
-            <p class="text-lg">Type any word from any language for English and Bengali results.</p>
+            <p class="text-lg">Enter any word to see Parts of Speech and meanings.</p>
         </div>
 
     </main>
@@ -157,7 +174,7 @@
         }
 
         async function fetchTranslate(text, target) {
-            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${target}&dt=t&dt=at&q=${encodeURI(text)}`;
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${target}&dt=t&dt=at&dt=md&q=${encodeURI(text)}`;
             const res = await fetch(url);
             return await res.json();
         }
@@ -169,43 +186,49 @@
 
             if (!input) return;
 
-            statusMessage.innerHTML = '<p class="animate-pulse">Global Engine Syncing...</p>';
+            statusMessage.innerHTML = '<p class="animate-pulse">Deep Analyzing Word Properties...</p>';
             resultArea.classList.add('hidden');
 
             try {
-                // Fetch English and Bengali results simultaneously
                 const [enData, bnData] = await Promise.all([
                     fetchTranslate(input, 'en'),
                     fetchTranslate(input, 'bn')
                 ]);
 
-                // Update UI
                 document.getElementById('wordTitle').innerText = input;
-                document.getElementById('langDetect').innerText = `Source Language Detected`;
+                document.getElementById('langDetect').innerText = `Multilingual Input Detected`;
                 
-                // English Display
+                // English Display Logic
                 document.getElementById('enMeaning').innerText = enData[0][0][0];
+                document.getElementById('enPos').innerText = (enData[1] && enData[1][0]) ? enData[1][0][0] : "Word";
+                
                 let enSyns = "";
                 if(enData[1] && enData[1][0]) {
                     enData[1][0][1].slice(0, 5).forEach(s => enSyns += `<span class="bg-blue-900/20 px-2 py-1 border border-blue-500/30">${s}</span>`);
                 }
                 document.getElementById('enSyns').innerHTML = enSyns;
 
-                // Bengali Display
+                // Bengali Display Logic
                 document.getElementById('bnMeaning').innerText = bnData[0][0][0];
+                
+                // Translate the Part of Speech label to Bengali
+                const posLabel = (enData[1] && enData[1][0]) ? enData[1][0][0] : "শব্দ";
+                const bnPosRes = await fetchTranslate(posLabel, 'bn');
+                document.getElementById('bnPos').innerText = bnPosRes[0][0][0];
+
                 let bnSyns = "";
                 if(bnData[1] && bnData[1][0]) {
                     bnData[1][0][1].slice(0, 5).forEach(s => bnSyns += `<span class="bg-blue-900/20 px-2 py-1 border border-blue-500/30">${s}</span>`);
                 }
                 document.getElementById('bnSyns').innerHTML = bnSyns;
 
-                document.getElementById('wordDescription').innerText = `This universal result provides the primary definition in both English and Bengali, including common synonyms for global context.`;
+                document.getElementById('wordDescription').innerText = `This term functions as a ${posLabel} in this context. The translation engine provides the most accurate equivalents in both English and Bengali scripts.`;
 
                 statusMessage.classList.add('hidden');
                 resultArea.classList.remove('hidden');
 
             } catch (e) {
-                statusMessage.innerHTML = `<p class="text-red-500">Universal engine error. Please try again.</p>`;
+                statusMessage.innerHTML = `<p class="text-red-500">Retrieval failed. Please check your connection.</p>`;
             }
         }
 
