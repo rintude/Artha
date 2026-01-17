@@ -65,14 +65,14 @@
         }
 
         .pos-badge {
-            font-size: 0.65rem;
-            padding: 2px 8px;
+            font-size: 0.7rem;
+            padding: 4px 12px;
             background: rgba(59, 130, 246, 0.2);
             border: 1px solid var(--accent);
             color: var(--accent);
             text-transform: uppercase;
             font-weight: 900;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.15em;
         }
 
         .meaning-grid {
@@ -104,7 +104,7 @@
 
         <div class="relative mb-12">
             <div class="flex flex-col md:flex-row gap-4">
-                <input type="text" id="searchInput" placeholder="Type in any language..." class="sharp-input w-full p-5 text-xl outline-none transition-all">
+                <input type="text" id="searchInput" placeholder="Search any word..." class="sharp-input w-full p-5 text-xl outline-none transition-all">
                 <button onclick="searchWord()" class="sharp-button bg-blue-600 hover:bg-blue-500 text-white font-bold px-12 py-5 uppercase tracking-wider">
                     Analyze
                 </button>
@@ -121,7 +121,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                             </button>
                         </div>
-                        <p id="langDetect" class="text-blue-400 font-bold uppercase text-sm tracking-widest mt-1">Source Detected</p>
+                        <p id="langDetect" class="text-blue-400 font-bold uppercase text-sm tracking-widest mt-1">Language Detected</p>
                     </div>
                 </div>
 
@@ -129,7 +129,7 @@
                     <section class="p-6 bg-slate-900/40 border border-slate-800">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest">In English</h3>
-                            <span id="enPos" class="pos-badge">POS</span>
+                            <span id="enPos" class="pos-badge">Word</span>
                         </div>
                         <p id="enMeaning" class="text-3xl font-bold text-white mb-4">Meaning</p>
                         <div id="enSyns" class="flex flex-wrap gap-2 text-sm italic text-blue-300"></div>
@@ -138,7 +138,7 @@
                     <section class="p-6 bg-slate-900/40 border border-slate-800">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest">In Bengali (বাংলায়)</h3>
-                            <span id="bnPos" class="pos-badge">পদ</span>
+                            <span id="bnPos" class="pos-badge">শব্দ</span>
                         </div>
                         <p id="bnMeaning" class="text-3xl font-bold text-white mb-4">অর্থ</p>
                         <div id="bnSyns" class="flex flex-wrap gap-2 text-sm italic text-blue-300"></div>
@@ -146,14 +146,14 @@
                 </div>
 
                 <div class="mt-8 pt-8 border-t border-slate-800">
-                    <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-3">Context & Usage</h3>
-                    <p id="wordDescription" class="text-slate-400 text-lg leading-relaxed italic">The engine is processing context...</p>
+                    <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-3">Context & Grammar</h3>
+                    <p id="wordDescription" class="text-slate-400 text-lg leading-relaxed italic">Processing details...</p>
                 </div>
             </div>
         </div>
 
         <div id="statusMessage" class="text-center text-slate-600 py-20">
-            <p class="text-lg">Enter any word to see Parts of Speech and meanings.</p>
+            <p class="text-lg">Enter a word to extract definitions and parts of speech.</p>
         </div>
 
     </main>
@@ -173,8 +173,8 @@
             window.speechSynthesis.speak(utterance);
         }
 
-        async function fetchTranslate(text, target) {
-            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${target}&dt=t&dt=at&dt=md&q=${encodeURI(text)}`;
+        async function fetchFullData(text, target) {
+            const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${target}&dt=t&dt=at&dt=md&dt=rw&q=${encodeURI(text)}`;
             const res = await fetch(url);
             return await res.json();
         }
@@ -186,21 +186,28 @@
 
             if (!input) return;
 
-            statusMessage.innerHTML = '<p class="animate-pulse">Deep Analyzing Word Properties...</p>';
+            statusMessage.innerHTML = '<p class="animate-pulse">Analyzing Grammar & Lexicon...</p>';
             resultArea.classList.add('hidden');
 
             try {
                 const [enData, bnData] = await Promise.all([
-                    fetchTranslate(input, 'en'),
-                    fetchTranslate(input, 'bn')
+                    fetchFullData(input, 'en'),
+                    fetchFullData(input, 'bn')
                 ]);
 
                 document.getElementById('wordTitle').innerText = input;
-                document.getElementById('langDetect').innerText = `Multilingual Input Detected`;
                 
-                // English Display Logic
+                // Identify POS from the data structure (Index 1 usually contains grammatical labels)
+                let posFound = "Word";
+                if (enData[1] && enData[1][0] && enData[1][0][0]) {
+                    posFound = enData[1][0][0];
+                } else if (enData[12]) { // Fallback for some API responses
+                    posFound = enData[12][0][0];
+                }
+
+                // Update English UI
                 document.getElementById('enMeaning').innerText = enData[0][0][0];
-                document.getElementById('enPos').innerText = (enData[1] && enData[1][0]) ? enData[1][0][0] : "Word";
+                document.getElementById('enPos').innerText = posFound;
                 
                 let enSyns = "";
                 if(enData[1] && enData[1][0]) {
@@ -208,13 +215,13 @@
                 }
                 document.getElementById('enSyns').innerHTML = enSyns;
 
-                // Bengali Display Logic
+                // Update Bengali UI
                 document.getElementById('bnMeaning').innerText = bnData[0][0][0];
                 
-                // Translate the Part of Speech label to Bengali
-                const posLabel = (enData[1] && enData[1][0]) ? enData[1][0][0] : "শব্দ";
-                const bnPosRes = await fetchTranslate(posLabel, 'bn');
-                document.getElementById('bnPos').innerText = bnPosRes[0][0][0];
+                // Translate the POS to Bengali
+                const bnPosData = await fetchFullData(posFound, 'bn');
+                const translatedPos = bnPosData[0][0][0];
+                document.getElementById('bnPos').innerText = translatedPos;
 
                 let bnSyns = "";
                 if(bnData[1] && bnData[1][0]) {
@@ -222,13 +229,14 @@
                 }
                 document.getElementById('bnSyns').innerHTML = bnSyns;
 
-                document.getElementById('wordDescription').innerText = `This term functions as a ${posLabel} in this context. The translation engine provides the most accurate equivalents in both English and Bengali scripts.`;
+                document.getElementById('wordDescription').innerText = `Grammatically categorized as "${posFound}" (${translatedPos}). This translation provides global equivalents with synonyms for comprehensive understanding.`;
+                document.getElementById('langDetect').innerText = "Detection Successful";
 
                 statusMessage.classList.add('hidden');
                 resultArea.classList.remove('hidden');
 
             } catch (e) {
-                statusMessage.innerHTML = `<p class="text-red-500">Retrieval failed. Please check your connection.</p>`;
+                statusMessage.innerHTML = `<p class="text-red-500">Error retrieving data. Please try again.</p>`;
             }
         }
 
