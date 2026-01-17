@@ -104,7 +104,7 @@
 
         <div class="relative mb-12">
             <div class="flex flex-col md:flex-row gap-4">
-                <input type="text" id="searchInput" placeholder="Search any word..." class="sharp-input w-full p-5 text-xl outline-none transition-all">
+                <input type="text" id="searchInput" placeholder="Search word or sentence in any language..." class="sharp-input w-full p-5 text-xl outline-none transition-all">
                 <button onclick="searchWord()" class="sharp-button bg-blue-600 hover:bg-blue-500 text-white font-bold px-12 py-5 uppercase tracking-wider">
                     Analyze
                 </button>
@@ -116,12 +116,12 @@
                 <div class="flex flex-wrap justify-between items-start gap-4 mb-8">
                     <div>
                         <div class="flex items-center gap-4">
-                            <h2 id="wordTitle" class="text-5xl font-black capitalize mb-2">Word</h2>
+                            <h2 id="wordTitle" class="text-4xl font-black capitalize mb-2">Word</h2>
                             <button onclick="speakWord()" class="p-2 bg-blue-600/20 hover:bg-blue-600/40 rounded-full transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                             </button>
                         </div>
-                        <p id="langDetect" class="text-blue-400 font-bold uppercase text-sm tracking-widest mt-1">Language Detected</p>
+                        <p id="langDetect" class="text-blue-400 font-bold uppercase text-xs tracking-widest mt-1">Ready</p>
                     </div>
                 </div>
 
@@ -129,37 +129,37 @@
                     <section class="p-6 bg-slate-900/40 border border-slate-800">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest">In English</h3>
-                            <span id="enPos" class="pos-badge">Word</span>
+                            <span id="enPos" class="pos-badge">Text</span>
                         </div>
-                        <p id="enMeaning" class="text-3xl font-bold text-white mb-4">Meaning</p>
+                        <p id="enMeaning" class="text-2xl font-bold text-white mb-4">Meaning</p>
                         <div id="enSyns" class="flex flex-wrap gap-2 text-sm italic text-blue-300"></div>
                     </section>
 
                     <section class="p-6 bg-slate-900/40 border border-slate-800">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest">In Bengali (বাংলায়)</h3>
-                            <span id="bnPos" class="pos-badge">শব্দ</span>
+                            <span id="bnPos" class="pos-badge">টেক্সট</span>
                         </div>
-                        <p id="bnMeaning" class="text-3xl font-bold text-white mb-4">অর্থ</p>
+                        <p id="bnMeaning" class="text-2xl font-bold text-white mb-4">অর্থ</p>
                         <div id="bnSyns" class="flex flex-wrap gap-2 text-sm italic text-blue-300"></div>
                     </section>
                 </div>
 
                 <div class="mt-8 pt-8 border-t border-slate-800 space-y-6">
                     <div>
-                        <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-3">Detailed Description</h3>
-                        <p id="wordDescription" class="text-slate-300 text-lg leading-relaxed">Processing details...</p>
+                        <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-3">Description</h3>
+                        <p id="wordDescription" class="text-slate-300 text-lg leading-relaxed">Processing...</p>
                     </div>
-                    <div class="bg-blue-600/5 p-5 border-l-2 border-blue-500">
+                    <div id="usageContainer" class="bg-blue-600/5 p-5 border-l-2 border-blue-500">
                         <h3 class="text-blue-400 font-bold text-xs uppercase tracking-widest mb-2">Usage Example</h3>
-                        <p id="wordExample" class="text-white italic text-lg leading-relaxed font-serif">Example sentence will appear here.</p>
+                        <p id="wordExample" class="text-white italic text-lg leading-relaxed font-serif"></p>
                     </div>
                 </div>
             </div>
         </div>
 
         <div id="statusMessage" class="text-center text-slate-600 py-20">
-            <p class="text-lg">Enter a word to extract definitions, parts of speech, and examples.</p>
+            <p class="text-lg">Input any language. Analysis will adapt to word or sentence format.</p>
         </div>
 
     </main>
@@ -171,16 +171,18 @@
     </footer>
 
     <script>
+        let detectedLangCode = 'en-US';
+
         function toggleTheme() { document.body.classList.toggle('light-theme'); }
 
         function speakWord() {
-            const word = document.getElementById('wordTitle').innerText;
-            const utterance = new SpeechSynthesisUtterance(word);
+            const text = document.getElementById('wordTitle').innerText;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = detectedLangCode;
             window.speechSynthesis.speak(utterance);
         }
 
         async function fetchFullData(text, target) {
-            // dt=md (definitions) and dt=ex (examples) included in the Google Translate Bridge
             const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${target}&dt=t&dt=at&dt=md&dt=ex&q=${encodeURI(text)}`;
             const res = await fetch(url);
             return await res.json();
@@ -190,11 +192,15 @@
             const input = document.getElementById('searchInput').value.trim();
             const resultArea = document.getElementById('resultArea');
             const statusMessage = document.getElementById('statusMessage');
+            const usageContainer = document.getElementById('usageContainer');
 
             if (!input) return;
 
-            statusMessage.innerHTML = '<p class="animate-pulse">Analyzing Semantic Context...</p>';
+            statusMessage.innerHTML = '<p class="animate-pulse">Analyzing Global Input...</p>';
             resultArea.classList.add('hidden');
+
+            // Detect if input is a sentence (contains spaces)
+            const isSentence = input.split(/\s+/).length > 1;
 
             try {
                 const [enData, bnData] = await Promise.all([
@@ -202,49 +208,49 @@
                     fetchFullData(input, 'bn')
                 ]);
 
+                // Set language code for audio based on detection
+                detectedLangCode = enData[2] || 'en-US';
+
                 document.getElementById('wordTitle').innerText = input;
+                document.getElementById('langDetect').innerText = `Input Language: ${detectedLangCode.toUpperCase()}`;
                 
-                // Identify POS
-                let posFound = "Word";
-                if (enData[1] && enData[1][0] && enData[1][0][0]) {
+                let posFound = isSentence ? "Sentence" : "Word";
+                if (!isSentence && enData[1] && enData[1][0]) {
                     posFound = enData[1][0][0];
                 }
 
-                // Update UI - English
                 document.getElementById('enMeaning').innerText = enData[0][0][0];
                 document.getElementById('enPos').innerText = posFound;
-                
+                document.getElementById('bnMeaning').innerText = bnData[0][0][0];
+
+                const bnPosData = await fetchFullData(posFound, 'bn');
+                document.getElementById('bnPos').innerText = bnPosData[0][0][0];
+
+                // Show Synonyms if they exist
                 let enSyns = "";
                 if(enData[1] && enData[1][0]) {
                     enData[1][0][1].slice(0, 5).forEach(s => enSyns += `<span class="bg-blue-900/20 px-2 py-1 border border-blue-500/30">${s}</span>`);
                 }
                 document.getElementById('enSyns').innerHTML = enSyns;
 
-                // Update UI - Bengali
-                document.getElementById('bnMeaning').innerText = bnData[0][0][0];
-                const bnPosData = await fetchFullData(posFound, 'bn');
-                document.getElementById('bnPos').innerText = bnPosData[0][0][0];
-
-                let bnSyns = "";
-                if(bnData[1] && bnData[1][0]) {
-                    bnData[1][0][1].slice(0, 5).forEach(s => bnSyns += `<span class="bg-blue-900/20 px-2 py-1 border border-blue-500/30">${s}</span>`);
+                // Handle Usage Example visibility
+                if (isSentence) {
+                    usageContainer.classList.add('hidden');
+                    document.getElementById('wordDescription').innerText = "This is a multi-word phrase or sentence. Above is the accurate translation in both languages.";
+                } else {
+                    usageContainer.classList.remove('hidden');
+                    const definition = (enData[12] && enData[12][0]) ? enData[12][0][1][0][0] : `Universal definition for "${input}" as a ${posFound}.`;
+                    const exampleText = (enData[13] && enData[13][0]) ? enData[13][0][0][0].replace(/<b>|<\/b>/g, "") : `The term "${input}" is frequently used in global contexts.`;
+                    
+                    document.getElementById('wordDescription').innerText = definition;
+                    document.getElementById('wordExample').innerText = `"${exampleText}"`;
                 }
-                document.getElementById('bnSyns').innerHTML = bnSyns;
-
-                // Update Description and Example Sentence
-                // Extracting from dt=md (definition) and dt=ex (example)
-                const definition = (enData[12] && enData[12][0]) ? enData[12][0][1][0][0] : `The term "${input}" is used globally as a ${posFound}. It is common in both academic and casual conversation.`;
-                const exampleText = (enData[13] && enData[13][0]) ? enData[13][0][0][0].replace(/<b>|<\/b>/g, "") : `I used the word "${input}" during my presentation today.`;
-
-                document.getElementById('wordDescription').innerText = definition;
-                document.getElementById('wordExample').innerText = `"${exampleText}"`;
-                document.getElementById('langDetect').innerText = "Word Analysis Complete";
 
                 statusMessage.classList.add('hidden');
                 resultArea.classList.remove('hidden');
 
             } catch (e) {
-                statusMessage.innerHTML = `<p class="text-red-500">Error retrieving data. Please try again.</p>`;
+                statusMessage.innerHTML = `<p class="text-red-500">Retrieval error. Please check connection.</p>`;
             }
         }
 
