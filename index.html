@@ -183,7 +183,7 @@
         </div>
 
         <div id="statusMessage" class="text-center text-slate-600 py-20">
-            <p class="text-lg">Input any language. Experience detailed grammatical mood variations.</p>
+            <p class="text-lg">Real-world usage examples dynamically retrieved for every search.</p>
         </div>
 
     </main>
@@ -233,7 +233,7 @@
 
                 detectedLangCode = enData[2] || 'en-US';
                 document.getElementById('wordTitle').innerText = input;
-                document.getElementById('langDetect').innerText = `Input: ${detectedLangCode.toUpperCase()}`;
+                document.getElementById('langDetect').innerText = `Input Language: ${detectedLangCode.toUpperCase()}`;
                 
                 let posFound = isSentence ? "Sentence" : "Word";
                 if (!isSentence && enData[1] && enData[1][0]) {
@@ -249,24 +249,27 @@
 
                 if (isSentence) {
                     usageContainer.classList.add('hidden');
-                    document.getElementById('wordDescription').innerText = "This is a full phrase or sentence. Detailed grammatical mood examples are only generated for single-word queries.";
+                    document.getElementById('wordDescription').innerText = "Phrase or sentence analyzed. Sentence mood breakdown is available for single words only.";
                 } else {
                     usageContainer.classList.remove('hidden');
-                    const definition = (enData[12] && enData[12][0]) ? enData[12][0][1][0][0] : `Universal definition for "${input}" as a ${posFound}.`;
+                    const definition = (enData[12] && enData[12][0]) ? enData[12][0][1][0][0] : `Universal definition for "${input}".`;
                     document.getElementById('wordDescription').innerText = definition;
 
-                    // Generating Mood Variations
-                    document.getElementById('exDec').innerText = `"${input.charAt(0).toUpperCase() + input.slice(1)} is essential for communication."`;
-                    document.getElementById('exInt').innerText = `"Can you explain what ${input} means here?"`;
-                    document.getElementById('exImp').innerText = `"Use the word ${input} in your next sentence."`;
-                    document.getElementById('exExc').innerText = `"What a powerful ${input} that was!"`;
+                    // Real-world dynamic example extraction
+                    const rawExamples = (enData[13] && enData[13][0]) ? enData[13][0].map(e => e[0].replace(/<b>|<\/b>/g, "")) : [];
+                    
+                    // Categorization Logic
+                    document.getElementById('exDec').innerText = rawExamples.find(e => e.endsWith('.')) || `The usage of "${input}" is common.`;
+                    document.getElementById('exInt').innerText = rawExamples.find(e => e.includes('?')) || `How do you define "${input}"?`;
+                    document.getElementById('exImp').innerText = rawExamples.find(e => !e.startsWith('I ') && !e.startsWith('He ') && !e.includes('?')) || `Note the context of "${input}".`;
+                    document.getElementById('exExc').innerText = rawExamples.find(e => e.includes('!')) || `Look at how "${input}" changes the meaning!`;
                 }
 
                 statusMessage.classList.add('hidden');
                 resultArea.classList.remove('hidden');
 
             } catch (e) {
-                statusMessage.innerHTML = `<p class="text-red-500">Retrieval error. Try again.</p>`;
+                statusMessage.innerHTML = `<p class="text-red-500">Retrieval error. Please check connection.</p>`;
             }
         }
 
