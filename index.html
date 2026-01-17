@@ -75,15 +75,6 @@
             letter-spacing: 0.15em;
         }
 
-        .example-label {
-            font-size: 0.6rem;
-            color: #64748b;
-            text-transform: uppercase;
-            font-weight: 700;
-            margin-bottom: 2px;
-            display: block;
-        }
-
         .meaning-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -160,30 +151,16 @@
                         <p id="wordDescription" class="text-slate-300 text-lg leading-relaxed italic">Processing...</p>
                     </div>
                     
-                    <div id="usageContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="bg-blue-600/5 p-4 border-l-2 border-blue-500">
-                            <span class="example-label">Declarative</span>
-                            <p id="exDec" class="text-white italic text-sm"></p>
-                        </div>
-                        <div class="bg-blue-600/5 p-4 border-l-2 border-blue-500">
-                            <span class="example-label">Interrogative</span>
-                            <p id="exInt" class="text-white italic text-sm"></p>
-                        </div>
-                        <div class="bg-blue-600/5 p-4 border-l-2 border-blue-500">
-                            <span class="example-label">Imperative</span>
-                            <p id="exImp" class="text-white italic text-sm"></p>
-                        </div>
-                        <div class="bg-blue-600/5 p-4 border-l-2 border-blue-500">
-                            <span class="example-label">Exclamatory</span>
-                            <p id="exExc" class="text-white italic text-sm"></p>
-                        </div>
+                    <div id="usageContainer" class="bg-blue-600/5 p-5 border-l-2 border-blue-500">
+                        <h3 class="text-blue-400 font-bold text-xs uppercase tracking-widest mb-2">Usage Example</h3>
+                        <p id="wordExample" class="text-white italic text-lg leading-relaxed font-serif"></p>
                     </div>
                 </div>
             </div>
         </div>
 
         <div id="statusMessage" class="text-center text-slate-600 py-20">
-            <p class="text-lg">Real-world usage examples dynamically retrieved for every search.</p>
+            <p class="text-lg">Search for definitions and contextual usage examples.</p>
         </div>
 
     </main>
@@ -220,7 +197,7 @@
 
             if (!input) return;
 
-            statusMessage.innerHTML = '<p class="animate-pulse">Deep Learning Lexicon Modes...</p>';
+            statusMessage.innerHTML = '<p class="animate-pulse">Analyzing Dictionary Entry...</p>';
             resultArea.classList.add('hidden');
 
             const isSentence = input.split(/\s+/).length > 1;
@@ -247,29 +224,29 @@
                 const bnPosData = await fetchFullData(posFound, 'bn');
                 document.getElementById('bnPos').innerText = bnPosData[0][0][0];
 
+                let enSyns = "";
+                if(enData[1] && enData[1][0]) {
+                    enData[1][0][1].slice(0, 5).forEach(s => enSyns += `<span class="bg-blue-900/20 px-2 py-1 border border-blue-500/30">${s}</span>`);
+                }
+                document.getElementById('enSyns').innerHTML = enSyns;
+
                 if (isSentence) {
                     usageContainer.classList.add('hidden');
-                    document.getElementById('wordDescription').innerText = "Phrase or sentence analyzed. Sentence mood breakdown is available for single words only.";
+                    document.getElementById('wordDescription').innerText = "Translation for the provided phrase or sentence is shown above.";
                 } else {
                     usageContainer.classList.remove('hidden');
                     const definition = (enData[12] && enData[12][0]) ? enData[12][0][1][0][0] : `Universal definition for "${input}".`;
-                    document.getElementById('wordDescription').innerText = definition;
-
-                    // Real-world dynamic example extraction
-                    const rawExamples = (enData[13] && enData[13][0]) ? enData[13][0].map(e => e[0].replace(/<b>|<\/b>/g, "")) : [];
+                    const exampleText = (enData[13] && enData[13][0]) ? enData[13][0][0][0].replace(/<b>|<\/b>/g, "") : `The term "${input}" is commonly used in various languages.`;
                     
-                    // Categorization Logic
-                    document.getElementById('exDec').innerText = rawExamples.find(e => e.endsWith('.')) || `The usage of "${input}" is common.`;
-                    document.getElementById('exInt').innerText = rawExamples.find(e => e.includes('?')) || `How do you define "${input}"?`;
-                    document.getElementById('exImp').innerText = rawExamples.find(e => !e.startsWith('I ') && !e.startsWith('He ') && !e.includes('?')) || `Note the context of "${input}".`;
-                    document.getElementById('exExc').innerText = rawExamples.find(e => e.includes('!')) || `Look at how "${input}" changes the meaning!`;
+                    document.getElementById('wordDescription').innerText = definition;
+                    document.getElementById('wordExample').innerText = `"${exampleText}"`;
                 }
 
                 statusMessage.classList.add('hidden');
                 resultArea.classList.remove('hidden');
 
             } catch (e) {
-                statusMessage.innerHTML = `<p class="text-red-500">Retrieval error. Please check connection.</p>`;
+                statusMessage.innerHTML = `<p class="text-red-500">Error retrieving data. Please try again.</p>`;
             }
         }
 
