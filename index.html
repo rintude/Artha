@@ -75,6 +75,15 @@
             letter-spacing: 0.15em;
         }
 
+        .example-label {
+            font-size: 0.6rem;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-bottom: 2px;
+            display: block;
+        }
+
         .meaning-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -104,7 +113,7 @@
 
         <div class="relative mb-12">
             <div class="flex flex-col md:flex-row gap-4">
-                <input type="text" id="searchInput" placeholder="Search word or sentence in any language..." class="sharp-input w-full p-5 text-xl outline-none transition-all">
+                <input type="text" id="searchInput" placeholder="Search word or sentence..." class="sharp-input w-full p-5 text-xl outline-none transition-all">
                 <button onclick="searchWord()" class="sharp-button bg-blue-600 hover:bg-blue-500 text-white font-bold px-12 py-5 uppercase tracking-wider">
                     Analyze
                 </button>
@@ -148,18 +157,33 @@
                 <div class="mt-8 pt-8 border-t border-slate-800 space-y-6">
                     <div>
                         <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-3">Description</h3>
-                        <p id="wordDescription" class="text-slate-300 text-lg leading-relaxed">Processing...</p>
+                        <p id="wordDescription" class="text-slate-300 text-lg leading-relaxed italic">Processing...</p>
                     </div>
-                    <div id="usageContainer" class="bg-blue-600/5 p-5 border-l-2 border-blue-500">
-                        <h3 class="text-blue-400 font-bold text-xs uppercase tracking-widest mb-2">Usage Example</h3>
-                        <p id="wordExample" class="text-white italic text-lg leading-relaxed font-serif"></p>
+                    
+                    <div id="usageContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-blue-600/5 p-4 border-l-2 border-blue-500">
+                            <span class="example-label">Declarative</span>
+                            <p id="exDec" class="text-white italic text-sm"></p>
+                        </div>
+                        <div class="bg-blue-600/5 p-4 border-l-2 border-blue-500">
+                            <span class="example-label">Interrogative</span>
+                            <p id="exInt" class="text-white italic text-sm"></p>
+                        </div>
+                        <div class="bg-blue-600/5 p-4 border-l-2 border-blue-500">
+                            <span class="example-label">Imperative</span>
+                            <p id="exImp" class="text-white italic text-sm"></p>
+                        </div>
+                        <div class="bg-blue-600/5 p-4 border-l-2 border-blue-500">
+                            <span class="example-label">Exclamatory</span>
+                            <p id="exExc" class="text-white italic text-sm"></p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <div id="statusMessage" class="text-center text-slate-600 py-20">
-            <p class="text-lg">Input any language. Analysis will adapt to word or sentence format.</p>
+            <p class="text-lg">Input any language. Experience detailed grammatical mood variations.</p>
         </div>
 
     </main>
@@ -196,10 +220,9 @@
 
             if (!input) return;
 
-            statusMessage.innerHTML = '<p class="animate-pulse">Analyzing Global Input...</p>';
+            statusMessage.innerHTML = '<p class="animate-pulse">Deep Learning Lexicon Modes...</p>';
             resultArea.classList.add('hidden');
 
-            // Detect if input is a sentence (contains spaces)
             const isSentence = input.split(/\s+/).length > 1;
 
             try {
@@ -208,11 +231,9 @@
                     fetchFullData(input, 'bn')
                 ]);
 
-                // Set language code for audio based on detection
                 detectedLangCode = enData[2] || 'en-US';
-
                 document.getElementById('wordTitle').innerText = input;
-                document.getElementById('langDetect').innerText = `Input Language: ${detectedLangCode.toUpperCase()}`;
+                document.getElementById('langDetect').innerText = `Input: ${detectedLangCode.toUpperCase()}`;
                 
                 let posFound = isSentence ? "Sentence" : "Word";
                 if (!isSentence && enData[1] && enData[1][0]) {
@@ -226,31 +247,26 @@
                 const bnPosData = await fetchFullData(posFound, 'bn');
                 document.getElementById('bnPos').innerText = bnPosData[0][0][0];
 
-                // Show Synonyms if they exist
-                let enSyns = "";
-                if(enData[1] && enData[1][0]) {
-                    enData[1][0][1].slice(0, 5).forEach(s => enSyns += `<span class="bg-blue-900/20 px-2 py-1 border border-blue-500/30">${s}</span>`);
-                }
-                document.getElementById('enSyns').innerHTML = enSyns;
-
-                // Handle Usage Example visibility
                 if (isSentence) {
                     usageContainer.classList.add('hidden');
-                    document.getElementById('wordDescription').innerText = "This is a multi-word phrase or sentence. Above is the accurate translation in both languages.";
+                    document.getElementById('wordDescription').innerText = "This is a full phrase or sentence. Detailed grammatical mood examples are only generated for single-word queries.";
                 } else {
                     usageContainer.classList.remove('hidden');
                     const definition = (enData[12] && enData[12][0]) ? enData[12][0][1][0][0] : `Universal definition for "${input}" as a ${posFound}.`;
-                    const exampleText = (enData[13] && enData[13][0]) ? enData[13][0][0][0].replace(/<b>|<\/b>/g, "") : `The term "${input}" is frequently used in global contexts.`;
-                    
                     document.getElementById('wordDescription').innerText = definition;
-                    document.getElementById('wordExample').innerText = `"${exampleText}"`;
+
+                    // Generating Mood Variations
+                    document.getElementById('exDec').innerText = `"${input.charAt(0).toUpperCase() + input.slice(1)} is essential for communication."`;
+                    document.getElementById('exInt').innerText = `"Can you explain what ${input} means here?"`;
+                    document.getElementById('exImp').innerText = `"Use the word ${input} in your next sentence."`;
+                    document.getElementById('exExc').innerText = `"What a powerful ${input} that was!"`;
                 }
 
                 statusMessage.classList.add('hidden');
                 resultArea.classList.remove('hidden');
 
             } catch (e) {
-                statusMessage.innerHTML = `<p class="text-red-500">Retrieval error. Please check connection.</p>`;
+                statusMessage.innerHTML = `<p class="text-red-500">Retrieval error. Try again.</p>`;
             }
         }
 
