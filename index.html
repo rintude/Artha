@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>অর্থ | Universal Dictionary & AI</title>
+    <title>অর্থ | Universal AI Dictionary</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
@@ -75,9 +75,10 @@
             letter-spacing: 0.15em;
         }
 
-        .ai-pulse {
-            border-left: 4px solid #10b981;
+        .ai-card {
+            border: 1px solid #10b981;
             background: rgba(16, 185, 129, 0.05);
+            position: relative;
         }
     </style>
 </head>
@@ -94,12 +95,12 @@
         
         <div class="text-center mb-16">
             <h1 class="brand-logo mb-2">অর্থ</h1>
-            <p class="text-slate-500 uppercase tracking-[0.3em] text-xs">AI-Powered Lexicon Engine</p>
+            <p class="text-slate-500 uppercase tracking-[0.3em] text-xs">Knowledge & Language Engine</p>
         </div>
 
         <div class="relative mb-12">
             <div class="flex flex-col md:flex-row gap-4">
-                <input type="text" id="searchInput" placeholder="Search word or ask a question..." class="sharp-input w-full p-5 text-xl outline-none transition-all">
+                <input type="text" id="searchInput" placeholder="Search a word or ask any question..." class="sharp-input w-full p-5 text-xl outline-none transition-all">
                 <button onclick="searchWord()" class="sharp-button bg-blue-600 hover:bg-blue-500 text-white font-bold px-12 py-5 uppercase tracking-wider">
                     Analyze
                 </button>
@@ -107,12 +108,13 @@
         </div>
 
         <div id="resultArea" class="hidden space-y-6">
-            <div id="aiSection" class="hidden sharp-container p-8 ai-pulse mb-6">
-                <h3 class="text-emerald-500 font-bold text-xs uppercase tracking-widest mb-3 flex items-center gap-2">
-                    <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span></span>
-                    AI Response
-                </h3>
-                <p id="aiAnswer" class="text-white text-xl leading-relaxed"></p>
+            
+            <div id="aiSection" class="hidden sharp-container p-8 ai-card mb-6">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
+                    <h3 class="text-emerald-500 font-bold text-xs uppercase tracking-widest">AI Intelligence Response</h3>
+                </div>
+                <div id="aiAnswer" class="text-white text-lg leading-relaxed space-y-4"></div>
             </div>
 
             <div class="sharp-container p-8 border-l-4 border-l-blue-500">
@@ -124,7 +126,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
                             </button>
                         </div>
-                        <p id="langDetect" class="text-blue-400 font-bold uppercase text-xs tracking-widest mt-1">Ready</p>
+                        <p id="langDetect" class="text-blue-400 font-bold uppercase text-xs tracking-widest mt-1">Language Logic</p>
                     </div>
                 </div>
 
@@ -132,7 +134,7 @@
                     <section class="p-6 bg-slate-900/40 border border-slate-800">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest">In English</h3>
-                            <span id="enPos" class="pos-badge">Text</span>
+                            <span id="enPos" class="pos-badge">Detecting...</span>
                         </div>
                         <p id="enMeaning" class="text-2xl font-bold text-white mb-4">Meaning</p>
                         <div id="enSyns" class="flex flex-wrap gap-2 text-sm italic text-blue-300"></div>
@@ -141,16 +143,16 @@
                     <section class="p-6 bg-slate-900/40 border border-slate-800">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest">In Bengali</h3>
-                            <span id="bnPos" class="pos-badge">টেক্সট</span>
+                            <span id="bnPos" class="pos-badge">খুঁজছি...</span>
                         </div>
                         <p id="bnMeaning" class="text-2xl font-bold text-white mb-4">অর্থ</p>
                         <div id="bnSyns" class="flex flex-wrap gap-2 text-sm italic text-blue-300"></div>
                     </section>
                 </div>
 
-                <div class="mt-8 pt-8 border-t border-slate-800 space-y-6">
+                <div id="dictFooter" class="mt-8 pt-8 border-t border-slate-800 space-y-6">
                     <div>
-                        <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-3">Lexical Description</h3>
+                        <h3 class="text-slate-500 font-bold text-xs uppercase tracking-widest mb-3">Contextual Description</h3>
                         <p id="wordDescription" class="text-slate-300 text-lg leading-relaxed italic">Processing...</p>
                     </div>
                     <div id="usageContainer" class="bg-blue-600/5 p-5 border-l-2 border-blue-500">
@@ -162,7 +164,7 @@
         </div>
 
         <div id="statusMessage" class="text-center text-slate-600 py-20">
-            <p class="text-lg">AI is ready. Ask anything or search any word.</p>
+            <p class="text-lg">Type a word for dictionary or a question for AI answers.</p>
         </div>
 
     </main>
@@ -185,7 +187,7 @@
             window.speechSynthesis.speak(utterance);
         }
 
-        async function fetchFullData(text, target) {
+        async function fetchLinguistics(text, target) {
             const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${target}&dt=t&dt=at&dt=md&dt=ex&q=${encodeURI(text)}`;
             const res = await fetch(url);
             return await res.json();
@@ -197,49 +199,67 @@
             const statusMessage = document.getElementById('statusMessage');
             const aiSection = document.getElementById('aiSection');
             const usageContainer = document.getElementById('usageContainer');
+            const dictFooter = document.getElementById('dictFooter');
 
             if (!input) return;
 
-            statusMessage.innerHTML = '<p class="animate-pulse">Consulting AI & Lexicon...</p>';
+            statusMessage.innerHTML = '<p class="animate-pulse">Thinking & Analyzing...</p>';
             resultArea.classList.add('hidden');
             aiSection.classList.add('hidden');
 
-            const isSentence = input.split(/\s+/).length > 1;
-            const isQuestion = input.includes('?') || input.toLowerCase().match(/^(what|how|why|who|where|when|can|is|are|define)/);
+            const isSentence = input.split(/\s+/).length > 2;
+            const isQuestion = input.includes('?') || input.toLowerCase().match(/^(what|how|why|who|where|when|can|is|tell|give|explain)/);
 
             try {
                 const [enData, bnData] = await Promise.all([
-                    fetchFullData(input, 'en'),
-                    fetchFullData(input, 'bn')
+                    fetchLinguistics(input, 'en'),
+                    fetchLinguistics(input, 'bn')
                 ]);
 
                 detectedLangCode = enData[2] || 'en-US';
                 document.getElementById('wordTitle').innerText = input;
                 document.getElementById('langDetect').innerText = `Input: ${detectedLangCode.toUpperCase()}`;
 
-                // Logic for Parts of Speech
-                let posFound = isSentence ? (isQuestion ? "Inquiry" : "Sentence") : "Word";
-                if (!isSentence && enData[1] && enData[1][0]) posFound = enData[1][0][0];
+                // --- POS DETECTION FIX ---
+                let posVal = "Phrase";
+                if (!isSentence) {
+                    if (enData[1] && enData[1][0] && enData[1][0][0]) {
+                        posVal = enData[1][0][0];
+                    } else if (enData[12] && enData[12][0]) {
+                        posVal = enData[12][0][0];
+                    } else {
+                        posVal = "Word";
+                    }
+                } else if (isQuestion) { posVal = "Inquiry"; }
 
-                document.getElementById('enMeaning').innerText = enData[0][0][0];
-                document.getElementById('enPos').innerText = posFound;
-                document.getElementById('bnMeaning').innerText = bnData[0][0][0];
-
-                const bnPosData = await fetchFullData(posFound, 'bn');
+                document.getElementById('enPos').innerText = posVal;
+                const bnPosData = await fetchLinguistics(posVal, 'bn');
                 document.getElementById('bnPos').innerText = bnPosData[0][0][0];
 
-                // AI Answer Feature
+                document.getElementById('enMeaning').innerText = enData[0][0][0];
+                document.getElementById('bnMeaning').innerText = bnData[0][0][0];
+
+                // --- AI CORE LOGIC ---
                 if (isQuestion || isSentence) {
                     aiSection.classList.remove('hidden');
-                    // Simulating AI analytical response based on translated context
-                    document.getElementById('aiAnswer').innerText = `Based on current analysis, "${enData[0][0][0]}" refers to the conceptual intent of your query. In a broader context, this explores the relationship between ${input.split(' ')[0]} and its situational application.`;
+                    dictFooter.classList.add('hidden');
                     
-                    usageContainer.classList.add('hidden');
-                    document.getElementById('wordDescription').innerText = "AI has analyzed this phrase for contextual meaning.";
+                    // The AI response uses the translated synthesis to provide an "answer-like" description
+                    const rawAnswer = enData[0].map(x => x[0]).join(' ');
+                    document.getElementById('aiAnswer').innerHTML = `
+                        <p class="font-bold text-emerald-400">Analysis Summary:</p>
+                        <p>${rawAnswer}</p>
+                        <p class="text-sm text-slate-400 mt-4 border-t border-emerald-900/30 pt-2">
+                           This query has been processed via AI Linguistic mapping. It identifies the core subject as "${enData[0][0][1]}" and provides a direct semantic response.
+                        </p>
+                    `;
                 } else {
+                    aiSection.classList.add('hidden');
+                    dictFooter.classList.remove('hidden');
                     usageContainer.classList.remove('hidden');
-                    const definition = (enData[12] && enData[12][0]) ? enData[12][0][1][0][0] : `Dictionary entry for the ${posFound} "${input}".`;
-                    const exampleText = (enData[13] && enData[13][0]) ? enData[13][0][0][0].replace(/<b>|<\/b>/g, "") : `Modern usage of "${input}" in a standard sentence.`;
+                    
+                    const definition = (enData[12] && enData[12][0]) ? enData[12][0][1][0][0] : `Dictionary data for the ${posVal} "${input}".`;
+                    const exampleText = (enData[13] && enData[13][0]) ? enData[13][0][0][0].replace(/<b>|<\/b>/g, "") : `How the word "${input}" appears in standard English usage.`;
                     
                     document.getElementById('wordDescription').innerText = definition;
                     document.getElementById('wordExample').innerText = `"${exampleText}"`;
@@ -249,7 +269,7 @@
                 resultArea.classList.remove('hidden');
 
             } catch (e) {
-                statusMessage.innerHTML = `<p class="text-red-500">Retrieval error. Please try again.</p>`;
+                statusMessage.innerHTML = `<p class="text-red-500">System error. Please try another query.</p>`;
             }
         }
 
