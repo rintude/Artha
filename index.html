@@ -1,141 +1,176 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>অর্থ | Universal AI Engine</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>Professional Web Calculator</title>
     <style>
-        :root { --accent: #3b82f6; --bg-dark: #020617; --card-bg: #0f172a; --text-main: #f8fafc; }
-        .light-theme { --bg-dark: #f1f5f9; --card-bg: #ffffff; --text-main: #0f172a; }
-        body { font-family: 'Inter', 'Hind Siliguri', sans-serif; background-color: var(--bg-dark); color: var(--text-main); transition: 0.3s; overflow-x: hidden; }
-        .brand-logo { font-size: 5rem; font-weight: 900; background: linear-gradient(135deg, #ffffff 0%, #3b82f6 50%, #1e40af 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.5)); letter-spacing: -2px; display: inline-block; }
-        .sharp-container { clip-path: polygon(0 0, 100% 0, 100% 90%, 97% 100%, 0 100%); background: var(--card-bg); border: 1px solid #1e293b; }
-        .sharp-button { clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%); transition: all 0.2s ease; }
-        .sharp-input { border: 2px solid #1e293b; background: rgba(15, 23, 42, 0.1); color: var(--text-main); border-radius: 0; }
-        .pos-badge { font-size: 0.7rem; padding: 4px 12px; border: 1px solid var(--accent); color: var(--accent); text-transform: uppercase; font-weight: 900; }
-        .ai-glow { border: 1px solid #10b981; background: rgba(16, 185, 129, 0.05); }
+        :root {
+            --bg-color: #121212;
+            --calc-bg: #1e1e1e;
+            --display-bg: #2d2d2d;
+            --text-color: #ffffff;
+            --btn-gray: #333333;
+            --btn-accent: #ff9500;
+            --btn-func: #a5a5a5;
+            --btn-hover: #444444;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .calculator {
+            background-color: var(--calc-bg);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            width: 320px;
+        }
+
+        #display {
+            width: 100%;
+            height: 80px;
+            background-color: var(--display-bg);
+            border: none;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: right;
+            padding: 10px 15px;
+            box-sizing: border-box;
+            color: var(--text-color);
+            font-size: 2.5rem;
+            outline: none;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        button {
+            height: 60px;
+            border-radius: 50px;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: white;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .number { background-color: var(--btn-gray); }
+        .operator { background-color: var(--btn-accent); }
+        .function { background-color: var(--btn-func); color: black; }
+
+        .number:hover { background-color: var(--btn-hover); }
+        .operator:hover { background-color: #ffb142; }
+        .function:hover { background-color: #d4d4d4; }
+
+        .double { grid-column: span 2; border-radius: 50px; text-align: left; padding-left: 25px; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body>
 
-    <nav class="w-full p-6 flex justify-between items-center border-b border-slate-800">
-        <div class="text-2xl font-black tracking-tighter uppercase">অর্থ</div>
-        <button onclick="document.body.classList.toggle('light-theme')" class="bg-slate-800 px-4 py-2 text-xs font-bold uppercase text-white">Switch Mode</button>
-    </nav>
+<div class="calculator">
+    <input type="text" id="display" disabled value="0">
+    <div class="buttons">
+        <button class="function" onclick="clearDisplay()">AC</button>
+        <button class="function" onclick="deleteLast()">DEL</button>
+        <button class="function" onclick="appendOperator('%')">%</button>
+        <button class="operator" onclick="appendOperator('/')">÷</button>
+        
+        <button class="number" onclick="appendNumber('7')">7</button>
+        <button class="number" onclick="appendNumber('8')">8</button>
+        <button class="number" onclick="appendNumber('9')">9</button>
+        <button class="operator" onclick="appendOperator('*')">×</button>
+        
+        <button class="number" onclick="appendNumber('4')">4</button>
+        <button class="number" onclick="appendNumber('5')">5</button>
+        <button class="number" onclick="appendNumber('6')">6</button>
+        <button class="operator" onclick="appendOperator('-')">−</button>
+        
+        <button class="number" onclick="appendNumber('1')">1</button>
+        <button class="number" onclick="appendNumber('2')">2</button>
+        <button class="number" onclick="appendNumber('3')">3</button>
+        <button class="operator" onclick="appendOperator('+')">+</button>
+        
+        <button class="number double" onclick="appendNumber('0')">0</button>
+        <button class="number" onclick="appendNumber('.')">.</button>
+        <button class="operator" onclick="calculate()">=</button>
+    </div>
+</div>
 
-    <main class="flex-grow container mx-auto px-4 py-12 max-w-5xl">
-        <div class="text-center mb-16">
-            <h1 class="brand-logo mb-2">অর্থ</h1>
-            <p class="text-slate-500 uppercase tracking-[0.3em] text-xs">Hybrid Knowledge Engine</p>
-        </div>
+<script>
+    const display = document.getElementById('display');
+    let currentInput = '0';
+    let shouldResetScreen = false;
 
-        <div class="relative mb-12">
-            <div class="flex flex-col md:flex-row gap-4">
-                <input type="text" id="searchInput" placeholder="Search words or ask complex questions..." class="sharp-input w-full p-5 text-xl outline-none">
-                <button onclick="searchWord()" class="sharp-button bg-blue-600 hover:bg-blue-500 text-white font-bold px-12 py-5 uppercase">Analyze</button>
-            </div>
-        </div>
+    function appendNumber(number) {
+        if (currentInput === '0' || shouldResetScreen) {
+            currentInput = number;
+            shouldResetScreen = false;
+        } else {
+            currentInput += number;
+        }
+        updateDisplay();
+    }
 
-        <div id="resultArea" class="hidden space-y-6">
-            <div id="aiSection" class="sharp-container p-8 ai-glow mb-6">
-                <h3 class="text-emerald-500 font-bold text-xs uppercase tracking-widest mb-4">AI Intelligence Response</h3>
-                <div id="aiAnswer" class="text-white text-lg leading-relaxed whitespace-pre-wrap"></div>
-            </div>
+    function appendOperator(operator) {
+        if (shouldResetScreen) shouldResetScreen = false;
+        const lastChar = currentInput.slice(-1);
+        if (['+', '-', '*', '/', '%'].includes(lastChar)) {
+            currentInput = currentInput.slice(0, -1) + operator;
+        } else {
+            currentInput += operator;
+        }
+        updateDisplay();
+    }
 
-            <div class="sharp-container p-8 border-l-4 border-l-blue-500">
-                <h2 id="wordTitle" class="text-4xl font-black capitalize mb-6">Result</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <section class="p-6 bg-slate-900/40 border border-slate-800">
-                        <span id="enPos" class="pos-badge mb-2 inline-block">Type</span>
-                        <p id="enMeaning" class="text-xl text-white italic">Grammar Analyzed</p>
-                    </section>
-                    <section class="p-6 bg-slate-900/40 border border-slate-800">
-                        <span id="bnPos" class="pos-badge mb-2 inline-block">অনুবাদ</span>
-                        <p id="bnMeaning" class="text-xl text-white"></p>
-                    </section>
-                </div>
-            </div>
-        </div>
-        <div id="statusMessage" class="text-center text-slate-600 py-20">System ready for your input.</div>
-    </main>
+    function clearDisplay() {
+        currentInput = '0';
+        updateDisplay();
+    }
 
-    <footer class="w-full py-8 text-center border-t border-slate-900 text-slate-500 text-xs">
-        © 2026 <span class="font-bold text-white">Babai</span>. All Rights Reserved.
-    </footer>
+    function deleteLast() {
+        if (currentInput.length > 1) {
+            currentInput = currentInput.slice(0, -1);
+        } else {
+            currentInput = '0';
+        }
+        updateDisplay();
+    }
 
-    <script>
-        const API_KEY = "AIzaSyCI-_19X7W1JyshC6iDmMx-pVf-Jk-WYRw"; 
-
-        async function getAIResponse(input) {
-            // Models to try in order of preference
-            const models = ["gemini-1.5-flash", "gemini-1.0-pro"];
+    function calculate() {
+        try {
+            // Replace visual operators with JS logic
+            let result = eval(currentInput.replace('×', '*').replace('÷', '/'));
             
-            for (let modelName of models) {
-                try {
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/${modelName}:generateContent?key=${API_KEY}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: input }] }]
-                        })
-                    });
-                    
-                    const data = await response.json();
-                    if (data.candidates && data.candidates[0].content.parts[0].text) {
-                        return data.candidates[0].content.parts[0].text;
-                    }
-                } catch (e) {
-                    console.log(`Failed with ${modelName}, trying next...`);
-                }
-            }
-            throw new Error("No compatible AI model found for this API Key.");
+            // Handle precision issues (e.g., 0.1 + 0.2)
+            currentInput = parseFloat(result.toFixed(10)).toString();
+            shouldResetScreen = true;
+            updateDisplay();
+        } catch (error) {
+            display.value = "Error";
+            currentInput = '0';
         }
+    }
 
-        async function searchWord() {
-            const input = document.getElementById('searchInput').value.trim();
-            if (!input) return;
+    function updateDisplay() {
+        display.value = currentInput;
+    }
+</script>
 
-            const status = document.getElementById('statusMessage');
-            const resultArea = document.getElementById('resultArea');
-            const aiAnswer = document.getElementById('aiAnswer');
-
-            status.innerText = "Synchronizing with AI Models...";
-            status.classList.remove('hidden');
-            resultArea.classList.add('hidden');
-
-            try {
-                // 1. Get AI Answer with Auto-Fallback Logic
-                const perfectText = await getAIResponse(input);
-
-                // 2. Get Translation & Grammar Data
-                const transRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=bn&dt=t&dt=at&q=${encodeURI(input)}`);
-                const transData = await transRes.json();
-
-                let pos = "Inquiry";
-                if (transData[1] && transData[1][0]) pos = transData[1][0][0];
-
-                // Update UI
-                document.getElementById('wordTitle').innerText = input;
-                aiAnswer.innerText = perfectText;
-                document.getElementById('bnMeaning').innerText = transData[0][0][0];
-                document.getElementById('enPos').innerText = pos;
-                
-                const posTrans = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=bn&dt=t&q=${pos}`);
-                const posTransData = await posTrans.json();
-                document.getElementById('bnPos').innerText = posTransData[0][0][0];
-
-                resultArea.classList.remove('hidden');
-                status.classList.add('hidden');
-
-            } catch (e) {
-                console.error(e);
-                status.innerText = "Error: " + e.message;
-            }
-        }
-
-        document.getElementById('searchInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') searchWord(); });
-    </script>
 </body>
 </html>
